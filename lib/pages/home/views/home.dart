@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:hugeicons/hugeicons.dart';
+import 'package:nagarifrontline/pages/print/views/print.dart';
+import 'package:nagarifrontline/pages/login/views/login.dart';
 import '../../queue/views/queue.dart';
 import '../../../widgets/button_with_background_image.dart';
 
@@ -44,7 +47,10 @@ class HomePage extends HookConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               ButtonWithBackgroundImageApp(
-                label: "Teller",
+                label: Text(
+                  "Teller",
+                  style: TextStyle(color: Colors.white),
+                ),
                 onPressed: () {
                   context.pushNamed(
                     QueuePage.name,
@@ -55,7 +61,10 @@ class HomePage extends HookConsumerWidget {
                 },
               ),
               ButtonWithBackgroundImageApp(
-                label: "Customer Service",
+                label: Text(
+                  "Customer Service",
+                  style: TextStyle(color: Colors.white),
+                ),
                 onPressed: () {
                   context.pushNamed(
                     QueuePage.name,
@@ -66,7 +75,10 @@ class HomePage extends HookConsumerWidget {
                 },
               ),
               ButtonWithBackgroundImageApp(
-                label: "Display",
+                label: Text(
+                  "Display",
+                  style: TextStyle(color: Colors.white),
+                ),
                 onPressed: () {
                   context.pushNamed(
                     QueuePage.name,
@@ -76,7 +88,42 @@ class HomePage extends HookConsumerWidget {
                   );
                 },
               ),
+              ButtonWithBackgroundImageApp(
+                label: Text(
+                  "Cetak Antrian",
+                  style: TextStyle(color: Colors.white),
+                ),
+                onPressed: () {
+                  context.pushNamed(PrintPage.name);
+                },
+              ),
             ],
+          ),
+        ),
+      ),
+      floatingActionButton: GestureDetector(
+        onTap: () => context.goNamed(LoginPage.name),
+        child: Container(
+          height: 56,
+          width: 56,
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              fit: BoxFit.cover,
+              image: Image.asset(
+                'assets/images/bg.jpg',
+                cacheHeight: 1080,
+                cacheWidth: 1920,
+                fit: BoxFit.cover,
+              ).image,
+            ),
+            color: Colors.blue,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: HugeIcon(
+            icon: HugeIcons.strokeRoundedLogout01,
+            color: Colors.white,
+            size: 24.0,
           ),
         ),
       ),
