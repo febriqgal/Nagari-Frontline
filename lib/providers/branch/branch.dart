@@ -15,17 +15,77 @@ class Branch extends _$Branch {
     await for (final message in _socket.messages) {
       final data = (jsonDecode(message));
       // await Future.delayed(const Duration(seconds: 10));
-      log("sssss$data");
+      log("uiuiui$data");
       yield data;
     }
   }
 
-  void updateQueue({required int tellerCurrentQueueNumber}) {
+  void updateTeller({
+    required int tellerCurrentQueueNumber,
+    required int tellerNumber,
+    required bool tellerSoundActive,
+  }) {
     _socket.send(
       jsonEncode({
         "action": "update",
-        "data": {"tellerCurrentQueueNumber": tellerCurrentQueueNumber}
+        "data": {
+          "tellerCurrentQueueNumber": tellerCurrentQueueNumber,
+          "tellerNumber": tellerNumber,
+          "tellerSoundActive": tellerSoundActive,
+        }
       }),
     );
   }
+
+  void updateTellerSound({
+    required bool tellerSoundActive,
+  }) {
+    _socket.send(
+      jsonEncode({
+        "action": "update",
+        "data": {
+          "tellerSoundActive": tellerSoundActive,
+        }
+      }),
+    );
+  }
+
+  void updateCS({
+    required int csCurrentQueueNumber,
+    required int csNumber,
+    required bool csSoundActive,
+  }) {
+    _socket.send(
+      jsonEncode({
+        "action": "update",
+        "data": {
+          "csCurrentQueueNumber": csCurrentQueueNumber,
+          "csNumber": csNumber,
+          "csSoundActive": csSoundActive,
+        }
+      }),
+    );
+  }
+
+  void updateCSSound({
+    required bool csSoundActive,
+  }) {
+    _socket.send(
+      jsonEncode({
+        "action": "update",
+        "data": {
+          "csSoundActive": csSoundActive,
+        }
+      }),
+    );
+  }
+
+  // void updateTellerNumber({required int tellerNumber}) {
+  //   _socket.send(
+  //     jsonEncode({
+  //       "action": "update",
+  //       "data": {"tellerNumber": tellerNumber}
+  //     }),
+  //   );
+  // }
 }

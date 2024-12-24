@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:nagarifrontline/pages/print/views/print.dart';
 import 'package:nagarifrontline/pages/login/views/login.dart';
-import '../../queue/views/queue.dart';
+import 'package:nagarifrontline/pages/print/views/print.dart';
+import 'package:responsive_framework/responsive_framework.dart';
+
 import '../../../widgets/button_with_background_image.dart';
+import '../../queue/views/queue.dart';
 
 class HomePage extends HookConsumerWidget {
   static const bool isRoot = true;
@@ -40,7 +42,11 @@ class HomePage extends HookConsumerWidget {
       ),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.symmetric(
+            horizontal: ResponsiveBreakpoints.of(context).largerThan(MOBILE)
+                ? MediaQuery.of(context).size.width * 0.25
+                : 16,
+          ),
           child: Column(
             spacing: 8,
             mainAxisAlignment: MainAxisAlignment.center,

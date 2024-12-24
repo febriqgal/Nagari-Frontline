@@ -8,7 +8,7 @@ import 'pages/queue/views/queue.dart';
 
 GoRouter routerApp() {
   return GoRouter(
-    initialLocation: HomePage.path,
+    initialLocation: LoginPage.path,
     routes: <RouteBase>[
       GoRoute(
         path: LoginPage.path,

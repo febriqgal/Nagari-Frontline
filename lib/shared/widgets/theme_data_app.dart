@@ -22,6 +22,7 @@ ThemeData themeDataApp() {
       ),
     ),
     appBarTheme: AppBarTheme(
+      toolbarHeight: 90,
       elevation: 0,
       shadowColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,

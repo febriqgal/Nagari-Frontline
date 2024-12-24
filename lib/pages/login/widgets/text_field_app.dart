@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-class TextFieldApp extends StatelessWidget {
+class TextFieldApp extends HookConsumerWidget {
   const TextFieldApp({
     super.key,
     required this.controller,
     this.maxLength,
-    required this.stateCount,
     required this.title,
     this.keyboardType,
     this.textInputAction,
@@ -18,7 +19,6 @@ class TextFieldApp extends StatelessWidget {
 
   final TextEditingController controller;
   final int? maxLength;
-  final ValueNotifier<int> stateCount;
   final TextInputType? keyboardType;
   final TextInputAction? textInputAction;
   final List<TextInputFormatter>? inputFormatters;
@@ -27,7 +27,8 @@ class TextFieldApp extends StatelessWidget {
   final HugeIcon icon;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final stateCount = useState<int>(0);
     return TextField(
       inputFormatters: inputFormatters,
       keyboardType: keyboardType,
@@ -42,40 +43,24 @@ class TextFieldApp extends StatelessWidget {
           : (value) {
               stateCount.value = value.length;
             },
-      decoration: inputDecorationApp(),
+      decoration: inputDecorationApp(stateCount: stateCount),
     );
   }
 
-  InputDecoration inputDecorationApp() {
+  InputDecoration inputDecorationApp({required ValueNotifier<int> stateCount}) {
     return InputDecoration(
       hintStyle: const TextStyle(color: Colors.black26),
       counterText: "",
-      suffixIcon: Row(
-        spacing: 8,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            "${stateCount.value}/$maxLength",
-            style: TextStyle(
-              fontSize: 8,
-              color: Colors.blue.withValues(
-                alpha: 0.5,
-              ),
-            ),
-          ),
-          GestureDetector(
-              onTap: () {
-                controller.clear();
-                stateCount.value = 0;
-              },
-              child: HugeIcon(
-                icon: HugeIcons.strokeRoundedCancelSquare,
-                color: Colors.blue,
-                size: 20.0,
-              )),
-          SizedBox(width: 8),
-        ],
-      ),
+      suffixIcon: GestureDetector(
+          onTap: () {
+            controller.clear();
+            stateCount.value = 0;
+          },
+          child: HugeIcon(
+            icon: HugeIcons.strokeRoundedCancelSquare,
+            color: Colors.blue,
+            size: 20.0,
+          )),
       prefixIcon: icon,
       hintText: title,
     );

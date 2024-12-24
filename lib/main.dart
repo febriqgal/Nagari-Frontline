@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'router.dart';
 import 'shared/widgets/theme_data_app.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+
   runApp(
     const ProviderScope(child: MyApp()),
   );

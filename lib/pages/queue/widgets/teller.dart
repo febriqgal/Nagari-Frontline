@@ -26,13 +26,15 @@ class TellerView extends HookConsumerWidget {
     final Map<String, dynamic> extra =
         GoRouterState.of(context).extra as Map<String, dynamic>;
     final tellerIsButtonEnabled = useState(true);
-    final tellerPosisi = useState(1);
+    final tellerQueueNumberStateLocal = useState(0);
+    final tellerPosisiStateLocal = useState(1);
+
     void tellerAddPosisi() {
-      if (tellerPosisi.value < 9) tellerPosisi.value++;
+      if (tellerPosisiStateLocal.value < 9) tellerPosisiStateLocal.value++;
     }
 
     void tellerMinPosisi() {
-      if (tellerPosisi.value > 1) tellerPosisi.value--;
+      if (tellerPosisiStateLocal.value > 1) tellerPosisiStateLocal.value--;
     }
 
     Future<void> playAudioAndSpeak(String number) async {
@@ -40,12 +42,14 @@ class TellerView extends HookConsumerWidget {
       await audioCache.onPlayerComplete.first;
       await flutterTts.setSpeechRate(0.3);
       await flutterTts.speak(
-          "Nomor Antrian, Aa${number.length == 1 ? " nol nol $number" : number.length == 2 ? " nol $number" : " $number"} , Silahkan menuju ke Teller ${tellerPosisi.value}");
+          "Nomor Antrian, Aa, ${number.length == 1 ? " nol nol $number" : number.length == 2 ? " nol $number" : " $number"} , Silahkan menuju ke Teller ${tellerPosisiStateLocal.value}");
       await flutterTts.awaitSpeakCompletion(true);
     }
 
     Widget buildTellerControls() {
       return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         spacing: 16,
         children: [
           const Text(
@@ -58,6 +62,7 @@ class TellerView extends HookConsumerWidget {
           Row(
             spacing: 16,
             mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               ElevatedButton(
                 onPressed: tellerMinPosisi,
@@ -68,7 +73,7 @@ class TellerView extends HookConsumerWidget {
                 ),
               ),
               Text(
-                "${tellerPosisi.value}",
+                "${tellerPosisiStateLocal.value}",
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -91,7 +96,7 @@ class TellerView extends HookConsumerWidget {
 
     Widget buildQueueNumberDisplay() {
       return Column(
-        spacing: 16,
+        spacing: 0,
         children: [
           const Text(
             'Teller',
@@ -110,57 +115,29 @@ class TellerView extends HookConsumerWidget {
 
     return Column(
       spacing: 16,
-      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         extra["role"] != "display"
             ? buildTellerControls()
             : buildQueueNumberDisplay(),
-        GestureDetector(
-          onLongPress: () {
-            showDialog(
-              barrierDismissible: false,
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Center(child: Text('Konfirmasi')),
-                content:
-                    const Text('Apakah Anda Mereset Nomor Antrian Teller?'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Tidak'),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      foregroundColor: Colors.white,
-                    ),
-                    onPressed: () {
-                      // tellerQueueNumber.value = 1;
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('Ya'),
-                  ),
-                ],
-              ),
-            );
-          },
-          child: Container(
-            alignment: Alignment.center,
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/bg.jpg'),
-                fit: BoxFit.cover,
-              ),
-              color: Colors.blue,
-              borderRadius: BorderRadius.all(Radius.circular(20)),
+        Container(
+          padding: const EdgeInsets.symmetric(vertical: 32),
+          alignment: Alignment.center,
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/bg.jpg'),
+              fit: BoxFit.cover,
             ),
-            child: Text(
-              'A${tellerCurrentQueueNumber.padLeft(3, '0')}',
-              style: const TextStyle(
-                fontSize: 100,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+            color: Colors.blue,
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+          ),
+          child: Text(
+            'A${tellerCurrentQueueNumber.padLeft(3, '0')}',
+            style: const TextStyle(
+              fontSize: 100,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
             ),
           ),
         ),
@@ -172,13 +149,21 @@ class TellerView extends HookConsumerWidget {
               ElevatedButton(
                 onPressed: tellerIsButtonEnabled.value
                     ? () async {
-                        final number = tellerCurrentQueueNumber;
+                        tellerQueueNumberStateLocal.value =
+                            int.parse(tellerCurrentQueueNumber) - 1;
+                        ref.read(branchProvider.notifier).updateTeller(
+                              tellerSoundActive: true,
+                              tellerCurrentQueueNumber:
+                                  tellerQueueNumberStateLocal.value,
+                              tellerNumber: tellerPosisiStateLocal.value,
+                            );
+                        final number =
+                            tellerQueueNumberStateLocal.value.toString();
                         if (context.mounted) {
                           showDialogApp(
                             context: context,
-                            title:
-                                "A${tellerCurrentQueueNumber.padLeft(3, '0')}",
-                            subtitle: "Teller ${tellerPosisi.value}",
+                            title: "A${number.padLeft(3, '0')}",
+                            subtitle: "Teller ${tellerPosisiStateLocal.value}",
                           );
                         }
                         await playAudioAndSpeak(number);
@@ -200,11 +185,11 @@ class TellerView extends HookConsumerWidget {
                         showDialogApp(
                           context: context,
                           title: "A${tellerCurrentQueueNumber.padLeft(3, '0')}",
-                          subtitle: "Teller ${tellerPosisi.value}",
+                          subtitle: "Teller ${tellerPosisiStateLocal.value}",
                         );
                         await flutterTts.setSpeechRate(0.3);
                         await flutterTts.speak(
-                            "Di ulangi, Nomor Antrian, Aa${number.length == 1 ? " nol nol $number" : number.length == 2 ? " nol $number" : " $number"} , Silahkan menuju ke Teller ${tellerPosisi.value}");
+                            "Di ulangi, Nomor Antrian, Aa, ${number.length == 1 ? " nol nol $number" : number.length == 2 ? " nol $number" : " $number"} , Silahkan menuju ke Teller ${tellerPosisiStateLocal.value}");
                         await flutterTts.awaitSpeakCompletion(true);
                         if (context.mounted) {
                           Navigator.of(context).pop();
@@ -220,22 +205,27 @@ class TellerView extends HookConsumerWidget {
               ElevatedButton(
                 onPressed: tellerIsButtonEnabled.value
                     ? () async {
-                        ref.read(branchProvider.notifier).updateQueue(
-                            tellerCurrentQueueNumber:
-                                int.parse(tellerCurrentQueueNumber) + 1);
-                        final number = tellerCurrentQueueNumber;
-                        if (context.mounted) {
-                          showDialogApp(
-                            context: context,
-                            title:
-                                "A${tellerCurrentQueueNumber.padLeft(3, '0')}",
-                            subtitle: "Teller ${tellerPosisi.value}",
-                          );
-                        }
-                        await playAudioAndSpeak(number);
-                        if (context.mounted) {
-                          Navigator.of(context).pop();
-                        }
+                        tellerQueueNumberStateLocal.value =
+                            int.parse(tellerCurrentQueueNumber) + 1;
+                        ref.read(branchProvider.notifier).updateTeller(
+                              tellerSoundActive: true,
+                              tellerCurrentQueueNumber:
+                                  tellerQueueNumberStateLocal.value,
+                              tellerNumber: tellerPosisiStateLocal.value,
+                            );
+                        // final number =
+                        //     tellerQueueNumberStateLocal.value.toString();
+                        // if (context.mounted) {
+                        //   showDialogApp(
+                        //     context: context,
+                        //     title: "A${number.padLeft(3, '0')}",
+                        //     subtitle: "Teller ${tellerPosisiStateLocal.value}",
+                        //   );
+                        // }
+                        // await playAudioAndSpeak(number);
+                        // if (context.mounted) {
+                        //   Navigator.of(context).pop();
+                        // }
                       }
                     : null,
                 child: const HugeIcon(
